@@ -16,7 +16,7 @@ $ pip install openlimit
 
 ## Usage
 
-openlimit provides rate limiters for the main OpenAI APIs. Applying a rate limit is as simple as adding a `with` statement to your API calls. For example:
+Applying a rate limit is as simple as adding a `with` statement to your API calls. For example:
 
 ```python
 from openlimit import ChatRateLimiter
@@ -41,7 +41,7 @@ def call_gpt4(chat_params):
     return response
 ```
 
-openlimit supports the most popular OpenAI models, and support for secondary models (e.g. Edit & Insert) is coming soon.
+openlimit provides different rate limiter classes for different OpenAI models. The most popular models are currently supported, and secondary models (e.g. Edit & Insert) is coming soon.
 
 | Rate limiter | Supported models |
 | --- | --- |
