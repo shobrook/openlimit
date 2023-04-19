@@ -27,15 +27,15 @@ chat_params = {
     "messages": [{"role": "user", "content": "Hello!"}]
 }
 
-with rate_limiter.acquire(**chat_params):
+with rate_limiter.limit(**chat_params):
     response = openai.ChatCompletion.create(**chat_params)
 ```
 
-Notice that `rate_limiter.acquire` expects the same parameters as the actual API call. openlimit also lets you decorate functions that make API calls, so long as the decorated function is passed the same parameters that are passed to the API call.
+Notice that `rate_limiter.limit` expects the same parameters as the actual API call. openlimit also lets you decorate functions that make API calls, so long as the decorated function is passed the same parameters that are passed to the API call.
 
 
 ```python
-@rate_limiter.acquire
+@rate_limiter.limit
 def call_gpt4(chat_params):
     response = openai.ChatCompletion.create(**chat_params)
     return response
@@ -64,7 +64,7 @@ async def call_gpt4():
         "messages": [{"role": "user", "content": "Hello!"}]
     }
 
-    async with rate_limiter.acquire(**chat_params):
+    async with rate_limiter.limit(**chat_params):
         response = await openai.ChatCompletion.acreate(**chat_params)
 ```
 
