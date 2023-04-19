@@ -10,7 +10,7 @@ Efficient rate limiter for the OpenAI API. Implements the [leaky bucket pattern]
 
 > Requires Python 3.X.
 
-You can install `openlimit` with `pip`:
+You can install openlimit with pip:
 
 ```bash
 $ pip install openlimit
@@ -18,7 +18,7 @@ $ pip install openlimit
 
 ## Usage
 
-`openlimit` provides rate limiters for the main OpenAI APIs. Applying a rate limit is as simple as adding a `with` statement to your API calls. For example:
+openlimit provides rate limiters for the main OpenAI APIs. Applying a rate limit is as simple as adding a `with` statement to your API calls. For example:
 
 ```python
 from openlimit import ChatRateLimiter
@@ -33,7 +33,7 @@ with rate_limiter.acquire(**chat_params):
     response = openai.ChatCompletion.create(**chat_params)
 ```
 
-Notice that `rate_limiter.acquire` expects the same parameters as the actual API call. `openlimit` also lets you decorate functions that make API calls, so long as the decorated function is passed the same parameters that are passed to the API call.
+Notice that `rate_limiter.acquire` expects the same parameters as the actual API call. openlimit also lets you decorate functions that make API calls, so long as the decorated function is passed the same parameters that are passed to the API call.
 
 
 ```python
@@ -43,7 +43,7 @@ def call_gpt4(chat_params):
     return response
 ```
 
-`openlimit` supports the most popular OpenAI models, and support for secondary models (e.g. Edit & Insert) is coming soon.
+openlimit supports the most popular OpenAI models, and support for secondary models (e.g. Edit & Insert) is coming soon.
 
 | Rate limiter | Supported models |
 | --- | --- |
@@ -53,7 +53,7 @@ def call_gpt4(chat_params):
 
 ### Asynchronous requests
 
-`openlimit` supports asynchronous requests too.
+openlimit supports asynchronous requests too.
 
 ```python
 from openlimit import ChatRateLimiter
@@ -72,7 +72,7 @@ async def call_gpt4():
 
 ### Distributed requests
 
-By default, `openlimit` uses an in-memory queue to track rate limits. But if your application is distributed, you can plug in a Redis queue to manage limits across multiple threads or processes.
+By default, openlimit uses an in-memory queue to track rate limits. But if your application is distributed, you can plug in a Redis queue to manage limits across multiple threads or processes.
 
 ```python
 from openlimit import ChatRateLimiterWithRedis
