@@ -1,6 +1,6 @@
 # openlimit
 
-Efficient rate limiter for the OpenAI API. Implements the [leaky bucket pattern](https://en.wikipedia.org/wiki/Leaky_bucket) to manage both request and token-based rate limits.
+Efficient rate limiter for the OpenAI API. Implements the [leaky bucket pattern](https://en.wikipedia.org/wiki/Leaky_bucket) to manage both request and token-based rate limits. Features:
 
 - Manage rate limits with one line of code
 - Supports synchronous and asynchronous requests
