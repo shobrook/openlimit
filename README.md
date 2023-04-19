@@ -1,9 +1,9 @@
 # openlimit
 
-Efficient rate limiter for the OpenAI API. Implements the [generic cell rate algorithm,](https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm) an efficient variant of the leaky bucket pattern, to manage both **request** and **token** limits. Features:
+Rate limiter for the OpenAI API. Implements the [generic cell rate algorithm,](https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm) an efficient variant of the leaky bucket pattern, to handle both request _and_ token limits. Features:
 
-- Manage rate limits with one line of code
-- Handle synchronous and asynchronous requests
+- Apply rate limits with one line of code
+- Limit synchronous and asynchronous requests
 - Plug in a Redis backend, which can be used to track limits across multiple threads or processes
 
 ## Installation 
@@ -35,7 +35,7 @@ Notice that `rate_limiter.limit` expects the same parameters as the actual API c
 
 ```python
 @rate_limiter.limit
-def call_gpt4(chat_params):
+def call_openai(chat_params):
     response = openai.ChatCompletion.create(**chat_params)
     return response
 ```
@@ -57,7 +57,7 @@ from openlimit import ChatRateLimiter
 
 rate_limiter = ChatRateLimiter(request_limit=200, token_limit=40000)
 
-async def call_gpt4():
+async def call_openai():
     chat_params = { 
         "model": "gpt-4", 
         "messages": [{"role": "user", "content": "Hello!"}]
@@ -69,7 +69,7 @@ async def call_gpt4():
 
 ### Distributed requests
 
-By default, openlimit uses an in-memory queue to track rate limits. But if your application is distributed, you can plug in a Redis queue to manage limits across multiple threads or processes.
+By default, openlimit uses an in-memory store to track rate limits. But if your application is distributed, you can plug in a Redis store to manage limits across multiple threads or processes.
 
 ```python
 from openlimit import ChatRateLimiterWithRedis
