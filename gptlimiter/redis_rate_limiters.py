@@ -47,11 +47,11 @@ class RateLimiterWithRedis(object):
             redis=redis
         )
     
-    async def _multi_acquire(self, num_tokens):
+    async def _multi_wait_for_capacity(self, num_tokens):
         await self._init_buckets()
         await asyncio.gather(
-            self._request_bucket.acquire(1),
-            self._token_bucket.acquire(num_tokens)
+            self._request_bucket.wait_for_capacity(1),
+            self._token_bucket.wait_for_capacity(num_tokens)
         )
 
         return
@@ -66,9 +66,9 @@ class ChatRateLimiterWithRedis(RateLimiterWithRedis):
     def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
         super().__init__(request_limit, token_limit, "chat", redis_url)
 
-    async def acquire(self, messages, max_tokens=15, n=1, **kwargs):
+    async def wait_for_capacity(self, messages, max_tokens=15, n=1, **kwargs):
         num_tokens = tc.num_tokens_consumed_by_chat_request(messages, max_tokens, n)
-        await self._multi_acquire(num_tokens)
+        await self._multi_wait_for_capacity(num_tokens)
 
         return
 
@@ -77,9 +77,9 @@ class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
     def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
         super().__init__(request_limit, token_limit, "completion", redis_url)
 
-    async def acquire(self, prompt, max_tokens=15, n=1, **kwargs):
+    async def wait_for_capacity(self, prompt, max_tokens=15, n=1, **kwargs):
         num_tokens = tc.num_tokens_consumed_by_completion_request(prompt, max_tokens, n)
-        await self._multi_acquire(num_tokens)
+        await self._multi_wait_for_capacity(num_tokens)
 
         return
 
@@ -88,8 +88,8 @@ class EmbeddingRateLimiterWithRedis(RateLimiterWithRedis):
     def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
         super().__init__(request_limit, token_limit, "embedding", redis_url)
 
-    async def acquire(self, input, **kwargs):
+    async def wait_for_capacity(self, input, **kwargs):
         num_tokens = tc.num_tokens_consumed_by_embedding_request(input)
-        await self._multi_acquire(num_tokens)
+        await self._multi_wait_for_capacity(num_tokens)
 
         return

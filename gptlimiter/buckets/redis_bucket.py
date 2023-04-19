@@ -56,6 +56,6 @@ class RedisBucket(object):
 
             return True
     
-    async def acquire(self, amount):
+    async def wait_for_capacity(self, amount):
         while not await self._has_capacity(amount):
             await asyncio.sleep(1 / self._rate_per_sec)
