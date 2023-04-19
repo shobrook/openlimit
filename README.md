@@ -1,6 +1,6 @@
 # openlimit
 
-Efficient rate limiter for the OpenAI API. Implements the [leaky bucket pattern](https://en.wikipedia.org/wiki/Leaky_bucket) to manage both request and token-based rate limits. Features:
+Efficient rate limiter for the OpenAI API. Implements the [generic cell rate algorithm,](https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm) an efficient variant of the leaky bucket pattern, to manage both **request** and **token** limits. Features:
 
 - Manage rate limits with one line of code
 - Handle synchronous and asynchronous requests
@@ -32,7 +32,6 @@ with rate_limiter.limit(**chat_params):
 ```
 
 Notice that `rate_limiter.limit` expects the same parameters as the actual API call. openlimit also lets you decorate functions that make API calls, so long as the decorated function is passed the same parameters that are passed to the API call.
-
 
 ```python
 @rate_limiter.limit

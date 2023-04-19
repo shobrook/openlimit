@@ -15,7 +15,7 @@ from buckets import RedisBucket
 
 
 class RateLimiterWithRedis(object):
-    def __init__(self, request_limit=200, token_limit=40000, redis_url="redis://localhost:5050"):
+    def __init__(self, request_limit, token_limit, bucket_key, redis_url="redis://localhost:5050"):
         # Rate limits
         self.request_limit = request_limit
         self.token_limit = token_limit
@@ -26,6 +26,9 @@ class RateLimiterWithRedis(object):
         # Buckets
         self._request_bucket = None
         self._token_bucket = None
+
+        # Bucket prefix (for Redis)
+        self._bucket_key = bucket_key
     
     async def _init_buckets(self):
         if self._request_bucket and self._token_bucket:
@@ -35,12 +38,12 @@ class RateLimiterWithRedis(object):
 
         self._request_bucket = RedisBucket(
             self.request_limit,
-            bucket_key="requests",
+            bucket_key=f"{self._bucket_key}_requests",
             redis=redis
         )
         self._token_bucket = RedisBucket(
             self.token_limit,
-            bucket_key="tokens",
+            bucket_key=f"{self._bucket_key}_tokens",
             redis=redis
         )
     
@@ -60,6 +63,9 @@ class RateLimiterWithRedis(object):
 
 
 class ChatRateLimiterWithRedis(RateLimiterWithRedis):
+    def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
+        super().__init__(request_limit, token_limit, "chat", redis_url)
+
     async def acquire(self, messages, max_tokens=15, n=1, **kwargs):
         num_tokens = tc.num_tokens_consumed_by_chat_request(messages, max_tokens, n)
         await self._multi_acquire(num_tokens)
@@ -68,6 +74,9 @@ class ChatRateLimiterWithRedis(RateLimiterWithRedis):
 
 
 class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
+    def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
+        super().__init__(request_limit, token_limit, "completion", redis_url)
+
     async def acquire(self, prompt, max_tokens=15, n=1, **kwargs):
         num_tokens = tc.num_tokens_consumed_by_completion_request(prompt, max_tokens, n)
         await self._multi_acquire(num_tokens)
@@ -76,6 +85,9 @@ class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
 
 
 class EmbeddingRateLimiterWithRedis(RateLimiterWithRedis):
+    def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
+        super().__init__(request_limit, token_limit, "embedding", redis_url)
+
     async def acquire(self, input, **kwargs):
         num_tokens = tc.num_tokens_consumed_by_embedding_request(input)
         await self._multi_acquire(num_tokens)
