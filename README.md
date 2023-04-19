@@ -8,8 +8,6 @@ Efficient rate limiter for the OpenAI API. Implements the [leaky bucket pattern]
 
 ## Installation 
 
-> Requires Python 3.X.
-
 You can install openlimit with pip:
 
 ```bash
