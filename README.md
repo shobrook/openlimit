@@ -5,7 +5,7 @@ Rate limiter for the OpenAI API. Implements the [generic cell rate algorithm,](h
 `openlimit` can:
 
 - Handle both _request_ and _token_ limits
-- Apply rate limits with one line of code
+- Precisely enforce rate limits with one line of code
 - Limit _synchronous_ and _asynchronous_ requests
 - Use Redis to track limits across multiple threads or processes
 
@@ -19,12 +19,29 @@ $ pip install openlimit
 
 ## Usage
 
-Applying a rate limit is as simple as adding a `with` statement to your API calls. For example:
+### Define a rate limit
+
+First, define your rate limits for the OpenAI model you're using. For example:
 
 ```python
 from openlimit import ChatRateLimiter
 
 rate_limiter = ChatRateLimiter(request_limit=200, token_limit=40000)
+```
+
+This sets a rate limit for a chat completion model (e.g. gpt-4, gpt-3.5-turbo). `openlimit` offers different rate limiter objects for different OpenAI models, all with the same parameters: `request_limit` and `token_limit`. Both limits are measured _per-minute_ and may vary depending on the user.
+
+| Rate limiter | Supported models |
+| --- | --- |
+| `ChatRateLimiter` | gpt-4, gpt-4-0314, gpt-4-32k, gpt-4-32k-0314, gpt-3.5-turbo, gpt-3.5-turbo-0301 |
+| `CompletionRateLimiter` | text-davinci-003, text-davinci-002, text-curie-001, text-babbage-001, text-ada-001 |
+| `EmbeddingRateLimiter` | text-embedding-ada-002 |
+
+### Apply the rate limit
+
+To apply the rate limit, add a `with` statement to your API calls:
+
+```python
 chat_params = { 
     "model": "gpt-4", 
     "messages": [{"role": "user", "content": "Hello!"}]
@@ -34,9 +51,9 @@ with rate_limiter.limit(**chat_params):
     response = openai.ChatCompletion.create(**chat_params)
 ```
 
-Notice that `rate_limiter.limit` expects the same parameters as the actual API call. 
+Ensure that `rate_limiter.limit` receives the same parameters as the actual API call. This is important for calculating expected token usage.
 
-You can also decorate functions that make API calls, so long as the decorated function is passed the same parameters that are passed to the API call.
+Alternatively, you can decorate functions that make API calls, as long as the decorated function receives the same parameters as the API call:
 
 ```python
 @rate_limiter.is_limited()
@@ -45,23 +62,11 @@ def call_openai(**chat_params):
     return response
 ```
 
-`openlimit` provides different rate limiter classes for different OpenAI models, listed in the table below. Each have the same parameters: `request_limit` and `token_limit`.
-
-| Rate limiter | Supported models |
-| --- | --- |
-| `ChatRateLimiter` | gpt-4, gpt-4-0314, gpt-4-32k, gpt-4-32k-0314, gpt-3.5-turbo, gpt-3.5-turbo-0301 |
-| `CompletionRateLimiter` | text-davinci-003, text-davinci-002, text-curie-001, text-babbage-001, text-ada-001 |
-| `EmbeddingRateLimiter` | text-embedding-ada-002 |
-
 ### Asynchronous requests
 
-Rate limits can be enforced for asynchronous requests too.
+Rate limits can be enforced for asynchronous requests too:
 
 ```python
-from openlimit import ChatRateLimiter
-
-rate_limiter = ChatRateLimiter(request_limit=200, token_limit=40000)
-
 async def call_openai():
     chat_params = { 
         "model": "gpt-4", 
@@ -88,6 +93,8 @@ rate_limiter = ChatRateLimiterWithRedis(
 # Use `rate_limiter` like you would normally ...
 ```
 
+All `RateLimiter` objects have `RateLimiterWithRedis` counterparts.
+
 ## Contributing
 
-If you want to contribute to the library, get started with [Adrenaline.](https://useadrenaline.com/) Just paste in a link to this repository to familiarize yourself.
+If you want to contribute to the library, get started with [Adrenaline.](https://useadrenaline.com/) Simply paste in a link to this repository to familiarize yourself.
