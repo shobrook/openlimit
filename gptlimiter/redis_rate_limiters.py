@@ -57,6 +57,13 @@ class RateLimiterWithRedis(object):
             self._request_bucket.wait_for_capacity(1),
             self._token_bucket.wait_for_capacity(num_tokens)
         )
+    
+    def limit(self, **kwargs):
+        num_tokens = self.token_counter(**kwargs)
+        return cd.AsyncContextManager(num_tokens, self)
+    
+    def is_limited(self):
+        return cd.FunctionDecorator(self)
 
 
 ######

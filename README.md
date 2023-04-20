@@ -1,14 +1,17 @@
 # openlimit
 
-Rate limiter for the OpenAI API. Implements the [generic cell rate algorithm,](https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm) an efficient variant of the leaky bucket pattern, to handle both request _and_ token limits. Features:
+Rate limiter for the OpenAI API. Implements the [generic cell rate algorithm,](https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm) an efficient variant of the leaky bucket pattern. 
 
+`openlimit` can:
+
+- Handle both request _and_ token limits
 - Apply rate limits with one line of code
 - Limit synchronous and asynchronous requests
-- Plug in a Redis backend, which can be used to track limits across multiple threads or processes
+- Use Redis to track limits across multiple threads or processes
 
 ## Installation 
 
-You can install openlimit with pip:
+You can install `openlimit` with pip:
 
 ```bash
 $ pip install openlimit
@@ -31,16 +34,18 @@ with rate_limiter.limit(**chat_params):
     response = openai.ChatCompletion.create(**chat_params)
 ```
 
-Notice that `rate_limiter.limit` expects the same parameters as the actual API call. openlimit also lets you decorate functions that make API calls, so long as the decorated function is passed the same parameters that are passed to the API call.
+Notice that `rate_limiter.limit` expects the same parameters as the actual API call. 
+
+You can also decorate functions that make API calls, so long as the decorated function is passed the same parameters that are passed to the API call.
 
 ```python
 @rate_limiter.limit
-def call_openai(chat_params):
+def call_openai(**chat_params):
     response = openai.ChatCompletion.create(**chat_params)
     return response
 ```
 
-openlimit provides different rate limiter classes for different OpenAI models. The most popular models are currently supported, and secondary models (e.g. Edit & Insert) is coming soon.
+`openlimit` provides different rate limiter classes for different OpenAI models, listed in the table below. Each have the same parameters: `request_limit` and `token_limit`.
 
 | Rate limiter | Supported models |
 | --- | --- |
@@ -50,7 +55,7 @@ openlimit provides different rate limiter classes for different OpenAI models. T
 
 ### Asynchronous requests
 
-openlimit supports asynchronous requests too.
+Rate limits can be enforced for asynchronous requests too.
 
 ```python
 from openlimit import ChatRateLimiter
@@ -69,7 +74,7 @@ async def call_openai():
 
 ### Distributed requests
 
-By default, openlimit uses an in-memory store to track rate limits. But if your application is distributed, you can plug in a Redis store to manage limits across multiple threads or processes.
+By default, `openlimit` uses an in-memory store to track rate limits. But if your application is distributed, you can easily plug in a Redis store to manage limits across multiple threads or processes.
 
 ```python
 from openlimit import ChatRateLimiterWithRedis
@@ -85,4 +90,4 @@ rate_limiter = ChatRateLimiterWithRedis(
 
 ## Contributing
 
-If you want to contribute to the library, I recommend learning your way around the codebase with [Adrenaline.](https://useadrenaline.com/) Simply plug in a link to this repository and start asking questions to ramp up.
+If you want to contribute to the library, get started with [Adrenaline.](https://useadrenaline.com/) Just paste in a link to this repository to familiarize yourself.
