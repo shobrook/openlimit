@@ -4,9 +4,9 @@ Rate limiter for the OpenAI API. Implements the [generic cell rate algorithm,](h
 
 `openlimit` can:
 
-- Handle both request _and_ token limits
+- Handle both _request_ and _token_ limits
 - Apply rate limits with one line of code
-- Limit synchronous _and_ asynchronous requests
+- Limit _synchronous_ and _asynchronous_ requests
 - Use Redis to track limits across multiple threads or processes
 
 ## Installation 
