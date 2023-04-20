@@ -5,9 +5,9 @@ import asyncio
 from redis import asyncio as aioredis
 
 # Local
-import utilities.token_counters as tc
-import utilities.context_decorators as cd
-from buckets import RedisBucket
+import openlimit.utilities.token_counters as tc
+import openlimit.utilities.context_decorators as cd
+from openlimit.buckets import RedisBucket
 
 
 ############
