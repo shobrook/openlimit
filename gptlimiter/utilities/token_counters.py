@@ -11,7 +11,7 @@ P50K_ENCODER = tiktoken.get_encoding("p50k_base")
 ######
 
 
-def num_tokens_consumed_by_chat_request(messages, max_tokens, n):
+def num_tokens_consumed_by_chat_request(messages, max_tokens=15, n=1, **kwargs):
     num_tokens = n * max_tokens
     for message in messages:
         num_tokens += 4 # Every message follows <im_start>{role/name}\n{content}<im_end>\n
@@ -26,7 +26,7 @@ def num_tokens_consumed_by_chat_request(messages, max_tokens, n):
     return num_tokens
     
 
-def num_tokens_consumed_by_completion_request(prompt, max_tokens, n):
+def num_tokens_consumed_by_completion_request(prompt, max_tokens=15, n=1, **kwargs):
     num_tokens = n * max_tokens
     if isinstance(prompt, str): # Single prompt
         num_tokens += len(P50K_ENCODER.encode(prompt))
@@ -40,7 +40,7 @@ def num_tokens_consumed_by_completion_request(prompt, max_tokens, n):
     return num_tokens
 
 
-def num_tokens_consumed_by_embedding_request(input):
+def num_tokens_consumed_by_embedding_request(input, **kwargs):
     if isinstance(input, str): # Single input
         return len(P50K_ENCODER.encode(input))
     elif isinstance(input, list): # Multiple inputs

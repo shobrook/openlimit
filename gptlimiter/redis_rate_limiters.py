@@ -5,7 +5,8 @@ import asyncio
 from redis import asyncio as aioredis
 
 # Local
-import token_counters as tc
+import utilities.token_counters as tc
+import utilities.context_decorators as cd
 from buckets import RedisBucket
 
 
@@ -15,10 +16,13 @@ from buckets import RedisBucket
 
 
 class RateLimiterWithRedis(object):
-    def __init__(self, request_limit, token_limit, bucket_key, redis_url="redis://localhost:5050"):
+    def __init__(self, request_limit, token_limit, token_counter, bucket_key, redis_url="redis://localhost:5050"):
         # Rate limits
         self.request_limit = request_limit
         self.token_limit = token_limit
+
+        # Token counter
+        self.token_counter = token_counter
 
         # Redis
         self._redis_url = redis_url
@@ -47,14 +51,12 @@ class RateLimiterWithRedis(object):
             redis=redis
         )
     
-    async def _multi_wait_for_capacity(self, num_tokens):
+    async def wait_for_capacity(self, num_tokens):
         await self._init_buckets()
         await asyncio.gather(
             self._request_bucket.wait_for_capacity(1),
             self._token_bucket.wait_for_capacity(num_tokens)
         )
-
-        return
 
 
 ######
@@ -64,32 +66,32 @@ class RateLimiterWithRedis(object):
 
 class ChatRateLimiterWithRedis(RateLimiterWithRedis):
     def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
-        super().__init__(request_limit, token_limit, "chat", redis_url)
-
-    async def wait_for_capacity(self, messages, max_tokens=15, n=1, **kwargs):
-        num_tokens = tc.num_tokens_consumed_by_chat_request(messages, max_tokens, n)
-        await self._multi_wait_for_capacity(num_tokens)
-
-        return
+        super().__init__(
+            request_limit, 
+            token_limit, 
+            tc.num_tokens_consumed_by_chat_request,
+            "chat", 
+            redis_url
+        )
 
 
 class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
     def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
-        super().__init__(request_limit, token_limit, "completion", redis_url)
-
-    async def wait_for_capacity(self, prompt, max_tokens=15, n=1, **kwargs):
-        num_tokens = tc.num_tokens_consumed_by_completion_request(prompt, max_tokens, n)
-        await self._multi_wait_for_capacity(num_tokens)
-
-        return
+        super().__init__(
+            request_limit, 
+            token_limit, 
+            tc.num_tokens_consumed_by_completion_request,
+            "completion", 
+            redis_url
+        )
 
 
 class EmbeddingRateLimiterWithRedis(RateLimiterWithRedis):
     def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
-        super().__init__(request_limit, token_limit, "embedding", redis_url)
-
-    async def wait_for_capacity(self, input, **kwargs):
-        num_tokens = tc.num_tokens_consumed_by_embedding_request(input)
-        await self._multi_wait_for_capacity(num_tokens)
-
-        return
+        super().__init__(
+            request_limit, 
+            token_limit, 
+            tc.num_tokens_consumed_by_embedding_request,
+            "embedding", 
+            redis_url
+        )
