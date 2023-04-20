@@ -39,7 +39,7 @@ Notice that `rate_limiter.limit` expects the same parameters as the actual API c
 You can also decorate functions that make API calls, so long as the decorated function is passed the same parameters that are passed to the API call.
 
 ```python
-@rate_limiter.limit
+@rate_limiter.is_limited()
 def call_openai(**chat_params):
     response = openai.ChatCompletion.create(**chat_params)
     return response
