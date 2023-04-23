@@ -2,8 +2,7 @@
 import asyncio
 
 # Local
-import openlimit.utilities.token_counters as tc
-import openlimit.utilities.context_decorators as cd
+import openlimit.utilities as utils
 from openlimit.buckets import Bucket
 
 
@@ -24,19 +23,19 @@ class RateLimiter(object):
         # Buckets
         self._request_bucket = Bucket(request_limit)
         self._token_bucket = Bucket(token_limit)
-    
+ 
     async def wait_for_capacity(self, num_tokens):
         await asyncio.gather(
-            self._request_bucket.wait_for_capacity(1),
-            self._token_bucket.wait_for_capacity(num_tokens)
+            self._token_bucket.wait_for_capacity(num_tokens),
+            self._request_bucket.wait_for_capacity(1)
         )
     
     def limit(self, **kwargs):
         num_tokens = self.token_counter(**kwargs)
-        return cd.AsyncContextManager(num_tokens, self)
+        return utils.ContextManager(num_tokens, self)
     
     def is_limited(self):
-        return cd.FunctionDecorator(self)
+        return utils.FunctionDecorator(self)
 
 
 ######
@@ -49,7 +48,7 @@ class ChatRateLimiter(RateLimiter):
         super().__init__(
             request_limit, 
             token_limit, 
-            tc.num_tokens_consumed_by_chat_request
+            utils.num_tokens_consumed_by_chat_request
         )
 
 
@@ -58,7 +57,7 @@ class CompletionRateLimiter(RateLimiter):
         super().__init__(
             request_limit, 
             token_limit, 
-            tc.num_tokens_consumed_by_completion_request
+            utils.num_tokens_consumed_by_completion_request
         )
 
 
@@ -67,5 +66,5 @@ class EmbeddingRateLimiter(RateLimiter):
         super().__init__(
             request_limit, 
             token_limit, 
-            tc.num_tokens_consumed_by_embedding_request
+            utils.num_tokens_consumed_by_embedding_request
         )

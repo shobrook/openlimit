@@ -1,2 +1,2 @@
-from buckets.redis_bucket import RedisBucket
-from buckets.bucket import Bucket
+from openlimit.buckets.redis_bucket import RedisBucket
+from openlimit.buckets.bucket import Bucket

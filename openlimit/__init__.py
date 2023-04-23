@@ -1,2 +1,2 @@
-from rate_limiters import ChatRateLimiter, CompletionRateLimiter, EmbeddingRateLimiter
-from redis_rate_limiters import ChatRateLimiterWithRedis, CompletionRateLimiterWithRedis, EmbeddingRateLimiterWithRedis
+from openlimit.rate_limiters import ChatRateLimiter, CompletionRateLimiter, EmbeddingRateLimiter
+from openlimit.redis_rate_limiters import ChatRateLimiterWithRedis, CompletionRateLimiterWithRedis, EmbeddingRateLimiterWithRedis

@@ -19,7 +19,7 @@ class Bucket(object):
         # Last time the bucket capacity was checked
         self._last_checked = time.time()
 
-    async def _has_capacity(self, amount):
+    def _has_capacity(self, amount):
         current_time = time.time()
         time_passed = current_time - self._last_checked
 
@@ -36,5 +36,5 @@ class Bucket(object):
         return True
     
     async def wait_for_capacity(self, amount):
-        while not await self._has_capacity(amount):
+        while not self._has_capacity(amount):
             await asyncio.sleep(1 / self._rate_per_sec)

@@ -1,4 +1,5 @@
 # Standard library
+import asyncio
 from inspect import iscoroutinefunction
 from functools import wraps
 
@@ -20,7 +21,7 @@ class FunctionDecorator(object):
         @wraps(func)
         def wrapper(*args, **kwargs):
             num_tokens = self.rater_limiter.token_counter(**kwargs)
-            self.rate_limiter.wait_for_capacity(num_tokens)
+            asyncio.run(self.rate_limiter.wait_for_capacity(num_tokens))
             return func(*args, **kwargs)
 
         @wraps(func)
@@ -33,17 +34,23 @@ class FunctionDecorator(object):
         return async_wrapper if iscoroutinefunction(func) else wrapper
 
 
-class AsyncContextManager(object):
+class ContextManager(object):
     """
-    Converts rate limiter into asynchronous context manager.
+    Converts rate limiter into context manager.
     """
 
     def __init__(self, num_tokens, rate_limiter):
         self.num_tokens = num_tokens
         self.rate_limiter = rate_limiter
     
+    def __enter__(self):
+        asyncio.run(self.rate_limiter.wait_for_capacity(self.num_tokens))
+    
+    def __exit__(self, *exc):
+        return False # Surfaces exceptions
+    
     async def __aenter__(self):
         await self.rate_limiter.wait_for_capacity(self.num_tokens)
     
     async def __aexit__(self, *exc):
-        return False # Surfaces exceptions
+        return False

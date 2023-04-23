@@ -2,11 +2,10 @@
 import asyncio
 
 # Third party
-from redis import asyncio as aioredis
+import redis
 
 # Local
-import openlimit.utilities.token_counters as tc
-import openlimit.utilities.context_decorators as cd
+import openlimit.utilities as utils
 from openlimit.buckets import RedisBucket
 
 
@@ -38,7 +37,7 @@ class RateLimiterWithRedis(object):
         if self._request_bucket and self._token_bucket:
             return
 
-        redis = await aioredis.from_url(self._redis_url, encoding="utf-8", decode_responses=True)
+        redis = await redis.asyncio.from_url(self._redis_url, encoding="utf-8", decode_responses=True)
 
         self._request_bucket = RedisBucket(
             self.request_limit,
@@ -50,20 +49,20 @@ class RateLimiterWithRedis(object):
             bucket_key=f"{self._bucket_key}_tokens",
             redis=redis
         )
-    
+
     async def wait_for_capacity(self, num_tokens):
         await self._init_buckets()
         await asyncio.gather(
-            self._request_bucket.wait_for_capacity(1),
-            self._token_bucket.wait_for_capacity(num_tokens)
+            self._token_bucket.wait_for_capacity(num_tokens),
+            self._request_bucket.wait_for_capacity(1)
         )
     
     def limit(self, **kwargs):
         num_tokens = self.token_counter(**kwargs)
-        return cd.AsyncContextManager(num_tokens, self)
+        return utils.ContextManager(num_tokens, self)
     
     def is_limited(self):
-        return cd.FunctionDecorator(self)
+        return utils.FunctionDecorator(self)
 
 
 ######
@@ -76,7 +75,7 @@ class ChatRateLimiterWithRedis(RateLimiterWithRedis):
         super().__init__(
             request_limit, 
             token_limit, 
-            tc.num_tokens_consumed_by_chat_request,
+            utils.num_tokens_consumed_by_chat_request,
             "chat", 
             redis_url
         )
@@ -87,7 +86,7 @@ class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
         super().__init__(
             request_limit, 
             token_limit, 
-            tc.num_tokens_consumed_by_completion_request,
+            utils.num_tokens_consumed_by_completion_request,
             "completion", 
             redis_url
         )
@@ -98,7 +97,7 @@ class EmbeddingRateLimiterWithRedis(RateLimiterWithRedis):
         super().__init__(
             request_limit, 
             token_limit, 
-            tc.num_tokens_consumed_by_embedding_request,
+            utils.num_tokens_consumed_by_embedding_request,
             "embedding", 
             redis_url
         )
