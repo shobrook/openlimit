@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name="openlimit",
     description="Rate limiter for the OpenAI API",
-    version="v0.2.3",
+    version="v0.2.4",
     packages=["openlimit", "openlimit.utilities", "openlimit.buckets"],
     python_requires=">=3",
     url="https://github.com/shobrook/openlimit",
