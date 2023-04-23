@@ -7,7 +7,7 @@ Simple and efficient rate limiter for the OpenAI API. It can:
 - Limit _synchronous_ and _asynchronous_ requests
 - Use Redis to track limits across multiple threads or processes
 
-`openlimit` implements the [generic cell rate algorithm,](https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm) a variant of the leaky bucket pattern.
+Implements the [generic cell rate algorithm,](https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm) a variant of the leaky bucket pattern.
 
 ## Installation
 
