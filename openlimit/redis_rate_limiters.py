@@ -75,9 +75,9 @@ class ChatRateLimiterWithRedis(RateLimiterWithRedis):
         super().__init__(
             request_limit=3500, 
             token_limit=90000, 
-            utils.num_tokens_consumed_by_chat_request,
-            "chat", 
-            redis_url
+            token_counter=utils.num_tokens_consumed_by_chat_request,
+            bucket_key="chat", 
+            redis_url=redis_url
         )
 
 
@@ -86,9 +86,9 @@ class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
         super().__init__(
             request_limit=3500, 
             token_limit=350000, 
-            utils.num_tokens_consumed_by_completion_request,
-            "completion", 
-            redis_url
+            token_counter=utils.num_tokens_consumed_by_completion_request,
+            bucket_key="completion", 
+            redis_url=redis_url
         )
 
 
@@ -97,7 +97,7 @@ class EmbeddingRateLimiterWithRedis(RateLimiterWithRedis):
         super().__init__(
             request_limit=3500, 
             token_limit=70000000, 
-            utils.num_tokens_consumed_by_embedding_request,
-            "embedding", 
-            redis_url
+            token_counter=utils.num_tokens_consumed_by_embedding_request,
+            bucket_key="embedding", 
+            redis_url=redis_url
         )

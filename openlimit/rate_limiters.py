@@ -48,7 +48,7 @@ class ChatRateLimiter(RateLimiter):
         super().__init__(
             request_limit=3500,
             token_limit=90000,
-            utils.num_tokens_consumed_by_chat_request
+            token_counter=utils.num_tokens_consumed_by_chat_request
         )
 
 
@@ -57,7 +57,7 @@ class CompletionRateLimiter(RateLimiter):
         super().__init__(
             request_limit=3500,
             token_limit=350000,
-            utils.num_tokens_consumed_by_completion_request
+            token_counter=utils.num_tokens_consumed_by_completion_request
         )
 
 
@@ -66,5 +66,5 @@ class EmbeddingRateLimiter(RateLimiter):
         super().__init__(
             request_limit=3500, 
             token_limit=70000000, 
-            utils.num_tokens_consumed_by_embedding_request
+            token_counter=utils.num_tokens_consumed_by_embedding_request
         )
