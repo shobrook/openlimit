@@ -30,7 +30,6 @@ def num_tokens_consumed_by_completion_request(prompt, max_tokens=15, n=1, **kwar
     num_tokens = n * max_tokens
     if isinstance(prompt, str): # Single prompt
         num_tokens += len(P50K_ENCODER.encode(prompt))
-        num_tokens += completion_tokens
     elif isinstance(prompt, list): # Multiple prompts
         num_tokens *= len(prompt)
         num_tokens += sum([len(P50K_ENCODER.encode(p) for p in prompt)])
