@@ -71,10 +71,10 @@ class RateLimiterWithRedis(object):
 
 
 class ChatRateLimiterWithRedis(RateLimiterWithRedis):
-    def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
+    def __init__(self, request_limit=3500, token_limit=90000, redis_url="redis://localhost:5050"):
         super().__init__(
-            request_limit=3500, 
-            token_limit=90000, 
+            request_limit=request_limit, 
+            token_limit=token_limit, 
             token_counter=utils.num_tokens_consumed_by_chat_request,
             bucket_key="chat", 
             redis_url=redis_url
@@ -82,10 +82,10 @@ class ChatRateLimiterWithRedis(RateLimiterWithRedis):
 
 
 class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
-    def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
+    def __init__(self, request_limit=3500, token_limit=350000, redis_url="redis://localhost:5050"):
         super().__init__(
-            request_limit=3500, 
-            token_limit=350000, 
+            request_limit=request_limit, 
+            token_limit=token_limit, 
             token_counter=utils.num_tokens_consumed_by_completion_request,
             bucket_key="completion", 
             redis_url=redis_url
@@ -93,10 +93,10 @@ class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
 
 
 class EmbeddingRateLimiterWithRedis(RateLimiterWithRedis):
-    def __init__(self, request_limit, token_limit, redis_url="redis://localhost:5050"):
+    def __init__(self, request_limit=3500, token_limit=70000000, redis_url="redis://localhost:5050"):
         super().__init__(
-            request_limit=3500, 
-            token_limit=70000000, 
+            request_limit=request_limit, 
+            token_limit=token_limit, 
             token_counter=utils.num_tokens_consumed_by_embedding_request,
             bucket_key="embedding", 
             redis_url=redis_url

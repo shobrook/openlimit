@@ -44,27 +44,27 @@ class RateLimiter(object):
 
 
 class ChatRateLimiter(RateLimiter):
-    def __init__(self, request_limit, token_limit):
+    def __init__(self, request_limit=3500, token_limit=90000):
         super().__init__(
-            request_limit=3500,
-            token_limit=90000,
+            request_limit=request_limit,
+            token_limit=token_limit,
             token_counter=utils.num_tokens_consumed_by_chat_request
         )
 
 
 class CompletionRateLimiter(RateLimiter):
-    def __init__(self, request_limit, token_limit):
+    def __init__(self, request_limit=3500, token_limit=350000):
         super().__init__(
-            request_limit=3500,
-            token_limit=350000,
+            request_limit=request_limit,
+            token_limit=token_limit,
             token_counter=utils.num_tokens_consumed_by_completion_request
         )
 
 
 class EmbeddingRateLimiter(RateLimiter):
-    def __init__(self, request_limit, token_limit):
+    def __init__(self, request_limit=3500, token_limit=70000000):
         super().__init__(
-            request_limit=3500, 
-            token_limit=70000000, 
+            request_limit=request_limit, 
+            token_limit=token_limit, 
             token_counter=utils.num_tokens_consumed_by_embedding_request
         )
