@@ -10,7 +10,7 @@ import time
 
 class Bucket(object):
     def __init__(self, rate_limit):
-        # once Per-second
+        # once Per-minute
         self._sec_per_tick = 60 / rate_limit
         # Last time the bucket capacity was checked
         self._last_checked = time.time()

@@ -45,6 +45,10 @@ class RateLimiter(object):
 
 class ChatRateLimiter(RateLimiter):
     def __init__(self, request_limit, token_limit):
+        '''
+        request_limit: number of requests per minute
+        token_limit: number of tokens per minute
+        '''
         super().__init__(
             request_limit=request_limit,
             token_limit=token_limit,
@@ -54,6 +58,10 @@ class ChatRateLimiter(RateLimiter):
 
 class CompletionRateLimiter(RateLimiter):
     def __init__(self, request_limit, token_limit):
+        '''
+        request_limit: number of requests per minute
+        token_limit: number of tokens per minute
+        '''
         super().__init__(
             request_limit=request_limit,
             token_limit=token_limit,
@@ -63,6 +71,10 @@ class CompletionRateLimiter(RateLimiter):
 
 class EmbeddingRateLimiter(RateLimiter):
     def __init__(self, request_limit, token_limit):
+        '''
+        request_limit: number of requests per minute
+        token_limit: number of tokens per minute
+        '''
         super().__init__(
             request_limit=request_limit, 
             token_limit=token_limit, 

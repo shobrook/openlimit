@@ -1,35 +1,32 @@
-# openlimit
+# openlimitHW
 
-Simple and efficient rate limiter for the OpenAI API. It can:
+简单高效的 OpenAI API 速率限制器。它可以：
 
-- Handle both _request_ and _token_ limits
-- Precisely enforce rate limits with one line of code
-- Limit _synchronous_ and _asynchronous_ requests
-- Use Redis to track limits across multiple threads or processes
+- 处理 _请求_ 和 _令牌_ 限制
+- 用一行代码精确地执行速率限制
+- 限制 _同步_ 和 _异步_ 请求
+- 使用 Redis 跨多个线程或进程跟踪限制
 
-Implements the [generic cell rate algorithm,](https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm) a variant of the leaky bucket pattern.
+## 安装
 
-## Installation
-
-You can install `openlimit` with pip:
+您可以使用 pip 安装 `openlimitHW`：
 
 ```bash
-$ pip install openlimit
+$ pip install openlimitHW
 ```
 
-## Usage
+## 使用
 
-### Define a rate limit
+### 定义速率限制
 
-First, define your rate limits for the OpenAI model you're using. For example:
+首先，为您使用的 OpenAI 模型定义速率限制。例如：
 
 ```python
-from openlimit import ChatRateLimiter
+from openlimitHW import ChatRateLimiter
 
-rate_limiter = ChatRateLimiter(request_limit=200, token_limit=40000)
+rate_limiter = ChatRateLimiter(request_limit=20, token_limit=4000*20)
 ```
-
-This sets a rate limit for a chat completion model (e.g. gpt-4, gpt-3.5-turbo). `openlimit` offers different rate limiter objects for different OpenAI models, all with the same parameters: `request_limit` and `token_limit`. Both limits are measured _per-minute_ and may vary depending on the user.
+这为chat completion model（例如 gpt-4，gpt-3.5-turbo）设置了速率限制。`openlimitHW` 提供了不同的速率限制器对象，用于不同的 OpenAI 模型，所有对象都具有相同的参数：`request_limit` 和 `token_limit`。两种限制都是 每分钟 的量，可能因用户而异。
 
 | Rate limiter | Supported models |
 | --- | --- |
@@ -37,9 +34,9 @@ This sets a rate limit for a chat completion model (e.g. gpt-4, gpt-3.5-turbo). 
 | `CompletionRateLimiter` | text-davinci-003, text-davinci-002, text-curie-001, text-babbage-001, text-ada-001 |
 | `EmbeddingRateLimiter` | text-embedding-ada-002 |
 
-### Apply the rate limit
+### 应用速率限制
 
-To apply the rate limit, add a `with` statement to your API calls:
+要应用速率限制，请在您的 API 调用中添加一个 `with` 语句：
 
 ```python
 chat_params = { 
@@ -51,9 +48,9 @@ with rate_limiter.limit(**chat_params):
     response = openai.ChatCompletion.create(**chat_params)
 ```
 
-Ensure that `rate_limiter.limit` receives the same parameters as the actual API call. This is important for calculating expected token usage.
+确保 `rate_limiter.limit` 接收与实际 API 调用相同的参数。这对于计算预期的令牌使用量很重要。
 
-Alternatively, you can decorate functions that make API calls, as long as the decorated function receives the same parameters as the API call:
+或者，您可以装饰执行 API 调用的函数，只要被装饰的函数接收与 API 调用相同的参数：
 
 ```python
 @rate_limiter.is_limited()
@@ -62,9 +59,9 @@ def call_openai(**chat_params):
     return response
 ```
 
-### Asynchronous requests
+### 异步请求
 
-Rate limits can be enforced for asynchronous requests too:
+速率限制也可以用于异步请求：
 
 ```python
 async def call_openai():
@@ -77,24 +74,22 @@ async def call_openai():
         response = await openai.ChatCompletion.acreate(**chat_params)
 ```
 
-### Distributed requests
+### 分布式请求
 
-By default, `openlimit` uses an in-memory store to track rate limits. But if your application is distributed, you can easily plug in a Redis store to manage limits across multiple threads or processes.
+默认情况下，`openlimitHW` 使用内存存储来跟踪速率限制。但是如果您的应用程序是分布式的，您可以轻松地插入一个 Redis 存储来管理跨多个线程或进程的限制。
 
 ```python
-from openlimit import ChatRateLimiterWithRedis
+from openlimitHW import ChatRateLimiterWithRedis
 
 rate_limiter = ChatRateLimiterWithRedis(
-    request_limit=200,
-    token_limit=40000,
+    request_limit=20,
+    token_limit=4000*20,
     redis_url="redis://localhost:5050"
 )
 
-# Use `rate_limiter` like you would normally ...
+# 像平常一样使用 `rate_limiter` ...
 ```
+所有 `RateLimiter` 对象都有 `RateLimiterWithRedis` 对应物。
 
-All `RateLimiter` objects have `RateLimiterWithRedis` counterparts.
-
-## Contributing
-
-If you want to contribute to the library, get started with [Adrenaline.](https://useadrenaline.com/) Simply paste in a link to this repository to familiarize yourself.
+## 贡献
+如果您想为库做出贡献，请从[Adrenaline](https://useadrenaline.com/) 开始。只需将此存储库的链接粘贴到 Web 翻译器中，即可。
