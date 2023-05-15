@@ -20,7 +20,7 @@ class FunctionDecorator(object):
     def __call__(self, func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            num_tokens = self.rater_limiter.token_counter(**kwargs)
+            num_tokens = self.rate_limiter.token_counter(**kwargs)
             asyncio.run(self.rate_limiter.wait_for_capacity(num_tokens))
             return func(*args, **kwargs)
 
