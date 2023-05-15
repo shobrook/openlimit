@@ -22,11 +22,11 @@ $ pip install openlimitHW
 首先，为您使用的 OpenAI 模型定义速率限制。例如：
 
 ```python
-from openlimitHW import ChatRateLimiter
+from openlimit import ChatRateLimiter
 
 rate_limiter = ChatRateLimiter(request_limit=20, token_limit=4000*20)
 ```
-这为chat completion model（例如 gpt-4，gpt-3.5-turbo）设置了速率限制。`openlimitHW` 提供了不同的速率限制器对象，用于不同的 OpenAI 模型，所有对象都具有相同的参数：`request_limit` 和 `token_limit`。两种限制都是 每分钟 的量，可能因用户而异。
+这为chat completion model（例如 gpt-4，gpt-3.5-turbo）设置了速率限制。`openlimit` 提供了不同的速率限制器对象，用于不同的 OpenAI 模型，所有对象都具有相同的参数：`request_limit` 和 `token_limit`。两种限制都是 每分钟 的量，可能因用户而异。
 
 | Rate limiter | Supported models |
 | --- | --- |
@@ -76,10 +76,10 @@ async def call_openai():
 
 ### 分布式请求
 
-默认情况下，`openlimitHW` 使用内存存储来跟踪速率限制。但是如果您的应用程序是分布式的，您可以轻松地插入一个 Redis 存储来管理跨多个线程或进程的限制。
+默认情况下，`openlimit` 使用内存存储来跟踪速率限制。但是如果您的应用程序是分布式的，您可以轻松地插入一个 Redis 存储来管理跨多个线程或进程的限制。
 
 ```python
-from openlimitHW import ChatRateLimiterWithRedis
+from openlimit import ChatRateLimiterWithRedis
 
 rate_limiter = ChatRateLimiterWithRedis(
     request_limit=20,
