@@ -16,6 +16,8 @@ class Bucket(object):
         # Capacity of the bucket
         self._capacity = rate_limit / 60
 
+        self._rate_limit = rate_limit
+
         # Last time the bucket capacity was checked
         self._last_checked = time.time()
 
@@ -25,16 +27,19 @@ class Bucket(object):
 
         self._last_checked = current_time
         self._capacity += time_passed * self._rate_per_sec
+        self._capacity = min(self._capacity, self._rate_limit)
 
-        if self._capacity > self._rate_per_sec:
-            self._capacity = self._rate_per_sec
-        
+        # if self._capacity > self._rate_per_sec:
+        #     self._capacity = self._rate_per_sec
+
         if self._capacity < amount:
             return False
-        
+
         self._capacity -= amount
         return True
-    
+
     async def wait_for_capacity(self, amount):
-        while not self._has_capacity(amount):
+        has_capacity = await self._has_capacity(amount)
+        while not has_capacity:
             await asyncio.sleep(1 / self._rate_per_sec)
+            has_capacity = await self._has_capacity(amount)
