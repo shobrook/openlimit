@@ -2,7 +2,7 @@
 import asyncio
 
 # Third party
-import redis
+import aioredis
 
 # Local
 import openlimit.utilities as utils
@@ -37,7 +37,7 @@ class RateLimiterWithRedis(object):
         if self._request_bucket and self._token_bucket:
             return
 
-        redis = await redis.asyncio.from_url(self._redis_url, encoding="utf-8", decode_responses=True)
+        redis = await aioredis.from_url(self._redis_url, encoding="utf-8", decode_responses=True)
 
         self._request_bucket = RedisBucket(
             self.request_limit,
