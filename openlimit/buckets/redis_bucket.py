@@ -3,7 +3,7 @@ import asyncio
 import time
 
 # Third party
-import redis
+import aioredis
 
 
 ######
@@ -21,14 +21,13 @@ class RedisBucket(object):
         self._bucket_key = bucket_key
     
     async def _has_capacity_async(self, amount):
-        async with redis.asyncio.lock.Lock(self._redis, f"{self._bucket_key}:lock"):
+        async with aioredis.lock.Lock(self._redis, f"{self._bucket_key}:lock"):
             pipeline = self._redis.pipeline()
 
             pipeline.get(f"{self._bucket_key}:last_checked")
             pipeline.get(f"{self._bucket_key}:capacity")
 
-            current_time = await self._redis.time()
-            current_time = current_time[0] + current_time[1] / 1000000
+            current_time = asyncio.get_event_loop().time()
 
             last_checked, capacity = await pipeline.execute()
 
@@ -37,15 +36,10 @@ class RedisBucket(object):
                 capacity = self._rate_per_sec
             
             time_passed = current_time - float(last_checked)
-            new_capacity = float(capacity) + time_passed * self._rate_per_sec
+            new_capacity = min(self._rate_per_sec, float(capacity) + time_passed * self._rate_per_sec)
 
             pipeline.set(f"{self._bucket_key}:last_checked", current_time)
 
-            if new_capacity > self._rate_per_sec:
-                new_capacity = self._rate_per_sec
-            
-            # Set capacity to new_capacity
-            
             if new_capacity < amount:
                 pipeline.set(f"{self._bucket_key}:capacity", new_capacity)
                 await pipeline.execute()
