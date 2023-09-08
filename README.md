@@ -95,6 +95,14 @@ rate_limiter = ChatRateLimiterWithRedis(
 
 All `RateLimiter` objects have `RateLimiterWithRedis` counterparts.
 
+## Testing
+
+You need a local Redis instance running at port 6379.
+
+```
+pytest
+```
+
 ## Contributing
 
 If you want to contribute to the library, get started with [Adrenaline.](https://useadrenaline.com/) Simply paste in a link to this repository to familiarize yourself.
