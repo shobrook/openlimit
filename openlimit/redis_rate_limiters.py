@@ -90,7 +90,11 @@ class RateLimiterWithRedis(object):
 
 class ChatRateLimiterWithRedis(RateLimiterWithRedis):
     def __init__(
-        self, request_limit=3500, token_limit=90000, redis_url="redis://localhost:5050"
+        self,
+        request_limit=3500,
+        token_limit=90000,
+        redis_url="redis://localhost:5050",
+        bucket_size_in_seconds: float = 1,
     ):
         super().__init__(
             request_limit=request_limit,
@@ -98,12 +102,17 @@ class ChatRateLimiterWithRedis(RateLimiterWithRedis):
             token_counter=utils.num_tokens_consumed_by_chat_request,
             bucket_key="chat",
             redis_url=redis_url,
+            bucket_size_in_seconds=bucket_size_in_seconds,
         )
 
 
 class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
     def __init__(
-        self, request_limit=3500, token_limit=350000, redis_url="redis://localhost:5050"
+        self,
+        request_limit=3500,
+        token_limit=350000,
+        redis_url="redis://localhost:5050",
+        bucket_size_in_seconds: float = 1,
     ):
         super().__init__(
             request_limit=request_limit,
@@ -111,6 +120,7 @@ class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
             token_counter=utils.num_tokens_consumed_by_completion_request,
             bucket_key="completion",
             redis_url=redis_url,
+            bucket_size_in_seconds=bucket_size_in_seconds,
         )
 
 
@@ -120,6 +130,7 @@ class EmbeddingRateLimiterWithRedis(RateLimiterWithRedis):
         request_limit=3500,
         token_limit=70000000,
         redis_url="redis://localhost:5050",
+        bucket_size_in_seconds: float = 1,
     ):
         super().__init__(
             request_limit=request_limit,
@@ -127,4 +138,5 @@ class EmbeddingRateLimiterWithRedis(RateLimiterWithRedis):
             token_counter=utils.num_tokens_consumed_by_embedding_request,
             bucket_key="embedding",
             redis_url=redis_url,
+            bucket_size_in_seconds=bucket_size_in_seconds,
         )
