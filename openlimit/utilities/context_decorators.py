@@ -41,8 +41,7 @@ class ContextManager(object):
         self.rate_limiter = rate_limiter
 
     def __enter__(self):
-        self.rate_limiter._request_bucket.wait_for_capacity_sync(1)
-        self.rate_limiter._token_bucket.wait_for_capacity_sync(self.num_tokens)
+        self.rate_limiter.wait_for_capacity_sync(self.num_tokens)
 
     def __exit__(self, *exc):
         return False
