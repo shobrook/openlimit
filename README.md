@@ -1,10 +1,10 @@
 # openlimit
 
-Simple and efficient rate limiter for the OpenAI API.
+A simple tool for maximizing usage of the OpenAI API without hitting the rate limit.
 
 - Handles both _request_ and _token_ limits
-- Precisely enforces rate limits with one line of code
-- Limits _synchronous_ and _asynchronous_ requests
+- Precisely (to the millisecond) enforces rate limits with one line of code
+- Handles _synchronous_ and _asynchronous_ requests
 - Plugs into Redis to track limits across multiple threads, processes, or servers
 
 Implements the [generic cell rate algorithm,](https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm) a variant of the leaky bucket pattern.
@@ -67,14 +67,13 @@ def call_openai(**chat_params):
 Rate limits can be enforced for asynchronous requests too:
 
 ```python
-async def call_openai():
-    chat_params = {
-        "model": "gpt-4",
-        "messages": [{"role": "user", "content": "Hello!"}]
-    }
+chat_params = {
+    "model": "gpt-4",
+    "messages": [{"role": "user", "content": "Hello!"}]
+}
 
-    async with rate_limiter.limit(**chat_params):
-        response = await openai.ChatCompletion.acreate(**chat_params)
+async with rate_limiter.limit(**chat_params):
+    response = await openai.ChatCompletion.acreate(**chat_params)
 ```
 
 ### Distributed requests
@@ -147,4 +146,4 @@ num_tokens = num_tokens_consumed_by_embedding_request(**request_args)
 
 ## Contributing
 
-If you want to contribute to the library, get started with [Adrenaline.](https://useadrenaline.com/) Simply paste in a link to this repository to familiarize yourself.
+If you want to contribute to the library, get started with [Adrenaline.](https://useadrenaline.com/) Paste in a link to this repository to familiarize yourself.
