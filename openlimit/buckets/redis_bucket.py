@@ -4,10 +4,7 @@ import time
 import typing
 
 # Third party
-import aioredis
-import aioredis.client
-import aioredis.lock
-
+import redis
 ######
 # MAIN
 ######
@@ -18,7 +15,7 @@ class RedisBucket(object):
         self,
         rate_limit,
         bucket_key,
-        redis: aioredis.Redis,
+        redis: redis.asyncio.Redis,
         bucket_size_in_seconds: float = 1,
     ):
         # Per-second rate limit
@@ -33,11 +30,11 @@ class RedisBucket(object):
 
     def _lock(self, **kwargs):
 
-        return aioredis.lock.Lock(self._redis, f"{self._bucket_key}:lock", **kwargs)
+        return redis.asyncio.lock.Lock(self._redis, f"{self._bucket_key}:lock", **kwargs)
 
     async def _get_capacity(
         self,
-        pipeline: typing.Optional[aioredis.client.Pipeline] = None,
+        pipeline: typing.Optional[redis.asyncio.client.Pipeline] = None,
         current_time: typing.Optional[float] = None,
     ):
 
@@ -67,7 +64,7 @@ class RedisBucket(object):
     async def _set_capacity(
         self,
         new_capacity: float,
-        pipeline: typing.Optional[aioredis.client.Pipeline] = None,
+        pipeline: typing.Optional[redis.asyncio.client.Pipeline] = None,
         current_time: typing.Optional[float] = None,
         execute: bool = True,
     ):

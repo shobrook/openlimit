@@ -1,15 +1,12 @@
-import asyncio
 from contextlib import AsyncExitStack, ExitStack
 from typing import Optional
-
-import aioredis
-import aioredis.client
-
+import asyncio
+import redis
 from openlimit.buckets.redis_bucket import RedisBucket
 
 
 class RedisBuckets(object):
-    def __init__(self, buckets: list[RedisBucket], redis: aioredis.Redis) -> None:
+    def __init__(self, buckets: list[RedisBucket], redis: redis.asyncio.Redis) -> None:
         self.buckets = buckets
         self._redis = redis
 
@@ -24,7 +21,7 @@ class RedisBuckets(object):
 
     async def _get_capacities(
         self,
-        pipeline: Optional[aioredis.client.Pipeline] = None,
+        pipeline: Optional[redis.asyncio.client.Pipeline] = None,
         current_time: Optional[float] = None,
     ):
 
@@ -44,7 +41,7 @@ class RedisBuckets(object):
     async def _set_capacities(
         self,
         new_capacities: list[float],
-        pipeline: Optional[aioredis.client.Pipeline] = None,
+        pipeline: Optional[redis.asyncio.client.Pipeline] = None,
         current_time: Optional[float] = None,
     ):
 
@@ -107,3 +104,9 @@ class RedisBuckets(object):
 
         while not await self._has_capacity_async(amounts):
             await asyncio.sleep(sleep_interval)
+
+    def wait_for_capacity_sync(
+        self, amounts: list[float], sleep_interval: float = 1e-1
+    ):
+
+        asyncio.run(self.wait_for_capacity(amounts, sleep_interval=sleep_interval))
