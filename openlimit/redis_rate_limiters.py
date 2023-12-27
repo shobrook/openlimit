@@ -95,12 +95,13 @@ class ChatRateLimiterWithRedis(RateLimiterWithRedis):
         token_limit=90000,
         redis_url="redis://localhost:5050",
         bucket_size_in_seconds: float = 1,
+        bucket_key="chat",
     ):
         super().__init__(
             request_limit=request_limit,
             token_limit=token_limit,
             token_counter=utils.num_tokens_consumed_by_chat_request,
-            bucket_key="chat",
+            bucket_key=bucket_key,
             redis_url=redis_url,
             bucket_size_in_seconds=bucket_size_in_seconds,
         )
@@ -113,12 +114,13 @@ class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
         token_limit=350000,
         redis_url="redis://localhost:5050",
         bucket_size_in_seconds: float = 1,
+        bucket_key="completion",
     ):
         super().__init__(
             request_limit=request_limit,
             token_limit=token_limit,
             token_counter=utils.num_tokens_consumed_by_completion_request,
-            bucket_key="completion",
+            bucket_key=bucket_key,
             redis_url=redis_url,
             bucket_size_in_seconds=bucket_size_in_seconds,
         )
@@ -131,12 +133,13 @@ class EmbeddingRateLimiterWithRedis(RateLimiterWithRedis):
         token_limit=70000000,
         redis_url="redis://localhost:5050",
         bucket_size_in_seconds: float = 1,
+        bucket_key="embedding",
     ):
         super().__init__(
             request_limit=request_limit,
             token_limit=token_limit,
             token_counter=utils.num_tokens_consumed_by_embedding_request,
-            bucket_key="embedding",
+            bucket_key=bucket_key,
             redis_url=redis_url,
             bucket_size_in_seconds=bucket_size_in_seconds,
         )
