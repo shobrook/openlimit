@@ -45,7 +45,7 @@ class RedisBucket(object):
         pipeline.get(f"{self._bucket_key}:capacity")
 
         if current_time is None:
-            current_time = asyncio.get_event_loop().time()
+            current_time = time.time()
 
         last_checked, capacity = await pipeline.execute()
 
@@ -73,7 +73,7 @@ class RedisBucket(object):
             pipeline = self._redis.pipeline()
 
         if current_time is None:
-            current_time = asyncio.get_event_loop().time()
+            current_time = time.time()
 
         pipeline.set(f"{self._bucket_key}:last_checked", current_time)
         pipeline.set(f"{self._bucket_key}:capacity", new_capacity)

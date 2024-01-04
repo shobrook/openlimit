@@ -1,3 +1,4 @@
+import time
 from contextlib import AsyncExitStack, ExitStack
 from typing import Optional
 import asyncio
@@ -29,7 +30,7 @@ class RedisBuckets(object):
             pipeline = self._redis.pipeline()
 
         if current_time is None:
-            current_time = asyncio.get_event_loop().time()
+            current_time = time.time()
 
         new_capacities = [
             await bucket._get_capacity(pipeline=pipeline, current_time=current_time)
@@ -49,7 +50,7 @@ class RedisBuckets(object):
             pipeline = self._redis.pipeline()
 
         if current_time is None:
-            current_time = asyncio.get_event_loop().time()
+            current_time = time.time()
 
         for new_capacity, bucket in zip(new_capacities, self.buckets):
 
@@ -65,11 +66,11 @@ class RedisBuckets(object):
     async def _has_capacity_async(self, amounts: list[float]):
 
         # Lock all the buckets
-        async with await self._lock(timeout=1):
+        async with await self._lock(timeout=2):
 
             # Create the pipeline and current time
             pipeline = self._redis.pipeline()
-            current_time = asyncio.get_event_loop().time()
+            current_time = time.time()
 
             # Get the new capacities
             new_capacities = await self._get_capacities(
