@@ -11,7 +11,7 @@ setup(
     author="shobrook",
     author_email="shobrookj@gmail.com",
     # classifiers=[],
-    install_requires=["aioredis", "tiktoken"],
+    install_requires=["redis", "tiktoken"],
     keywords=[
         "openai",
         "rate-limit",
