@@ -76,7 +76,7 @@ class RateLimiterWithRedis(object):
         )
 
     def wait_for_capacity_sync(self, num_tokens):
-        loop = asyncio.get_event_loop()
+        loop = utils.ensure_event_loop()
         loop.run_until_complete(self._init_buckets())
         loop.run_until_complete(self._buckets.wait_for_capacity(
             amounts=[1, num_tokens], sleep_interval=self.sleep_interval

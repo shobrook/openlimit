@@ -4,7 +4,7 @@ from typing import Optional
 import asyncio
 import redis
 from openlimit.buckets.redis_bucket import RedisBucket
-
+import openlimit.utilities as utils
 
 class RedisBuckets(object):
     def __init__(self, buckets: list[RedisBucket], redis: redis.asyncio.Redis) -> None:
@@ -109,5 +109,5 @@ class RedisBuckets(object):
     def wait_for_capacity_sync(
         self, amounts: list[float], sleep_interval: float = 1e-1
     ):
-        loop = asyncio.get_event_loop()
+        loop = utils.ensure_event_loop()
         loop.run_until_complete(self.wait_for_capacity(amounts, sleep_interval=sleep_interval))
