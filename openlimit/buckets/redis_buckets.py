@@ -109,5 +109,5 @@ class RedisBuckets(object):
     def wait_for_capacity_sync(
         self, amounts: list[float], sleep_interval: float = 1e-1
     ):
-
-        asyncio.run(self.wait_for_capacity(amounts, sleep_interval=sleep_interval))
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.wait_for_capacity(amounts, sleep_interval=sleep_interval))
