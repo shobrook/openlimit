@@ -2,7 +2,7 @@
 import asyncio
 
 # Third party
-import aioredis
+import redis
 
 # Local
 import openlimit.utilities as utils
@@ -47,23 +47,23 @@ class RateLimiterWithRedis(object):
         if self._buckets:
             return
 
-        redis = await aioredis.from_url(
+        db = await redis.asyncio.from_url(
             self._redis_url, encoding="utf-8", decode_responses=True
         )
 
         self._buckets = RedisBuckets(
-            redis=redis,
+            redis=db,
             buckets=[
                 RedisBucket(
                     self.request_limit,
                     bucket_key=f"{self._bucket_key}_requests",
-                    redis=redis,
+                    redis=db,
                     bucket_size_in_seconds=self._bucket_size_in_seconds,
                 ),
                 RedisBucket(
                     self.token_limit,
                     bucket_key=f"{self._bucket_key}_tokens",
-                    redis=redis,
+                    redis=db,
                     bucket_size_in_seconds=self._bucket_size_in_seconds,
                 ),
             ],
@@ -74,6 +74,13 @@ class RateLimiterWithRedis(object):
         await self._buckets.wait_for_capacity(
             amounts=[1, num_tokens], sleep_interval=self.sleep_interval
         )
+
+    def wait_for_capacity_sync(self, num_tokens):
+        loop = utils.ensure_event_loop()
+        loop.run_until_complete(self._init_buckets())
+        loop.run_until_complete(self._buckets.wait_for_capacity(
+            amounts=[1, num_tokens], sleep_interval=self.sleep_interval
+        ))
 
     def limit(self, **kwargs):
         num_tokens = self.token_counter(**kwargs)
@@ -95,12 +102,13 @@ class ChatRateLimiterWithRedis(RateLimiterWithRedis):
         token_limit=90000,
         redis_url="redis://localhost:5050",
         bucket_size_in_seconds: float = 1,
+        bucket_key="chat",
     ):
         super().__init__(
             request_limit=request_limit,
             token_limit=token_limit,
             token_counter=utils.num_tokens_consumed_by_chat_request,
-            bucket_key="chat",
+            bucket_key=bucket_key,
             redis_url=redis_url,
             bucket_size_in_seconds=bucket_size_in_seconds,
         )
@@ -113,12 +121,13 @@ class CompletionRateLimiterWithRedis(RateLimiterWithRedis):
         token_limit=350000,
         redis_url="redis://localhost:5050",
         bucket_size_in_seconds: float = 1,
+        bucket_key="completion",
     ):
         super().__init__(
             request_limit=request_limit,
             token_limit=token_limit,
             token_counter=utils.num_tokens_consumed_by_completion_request,
-            bucket_key="completion",
+            bucket_key=bucket_key,
             redis_url=redis_url,
             bucket_size_in_seconds=bucket_size_in_seconds,
         )
@@ -131,12 +140,13 @@ class EmbeddingRateLimiterWithRedis(RateLimiterWithRedis):
         token_limit=70000000,
         redis_url="redis://localhost:5050",
         bucket_size_in_seconds: float = 1,
+        bucket_key="embedding",
     ):
         super().__init__(
             request_limit=request_limit,
             token_limit=token_limit,
             token_counter=utils.num_tokens_consumed_by_embedding_request,
-            bucket_key="embedding",
+            bucket_key=bucket_key,
             redis_url=redis_url,
             bucket_size_in_seconds=bucket_size_in_seconds,
         )

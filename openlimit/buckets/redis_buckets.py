@@ -1,15 +1,13 @@
-import asyncio
+import time
 from contextlib import AsyncExitStack, ExitStack
 from typing import Optional
-
-import aioredis
-import aioredis.client
-
+import asyncio
+import redis
 from openlimit.buckets.redis_bucket import RedisBucket
-
+import openlimit.utilities as utils
 
 class RedisBuckets(object):
-    def __init__(self, buckets: list[RedisBucket], redis: aioredis.Redis) -> None:
+    def __init__(self, buckets: list[RedisBucket], redis: redis.asyncio.Redis) -> None:
         self.buckets = buckets
         self._redis = redis
 
@@ -24,7 +22,7 @@ class RedisBuckets(object):
 
     async def _get_capacities(
         self,
-        pipeline: Optional[aioredis.client.Pipeline] = None,
+        pipeline: Optional[redis.asyncio.client.Pipeline] = None,
         current_time: Optional[float] = None,
     ):
 
@@ -32,7 +30,7 @@ class RedisBuckets(object):
             pipeline = self._redis.pipeline()
 
         if current_time is None:
-            current_time = asyncio.get_event_loop().time()
+            current_time = time.time()
 
         new_capacities = [
             await bucket._get_capacity(pipeline=pipeline, current_time=current_time)
@@ -44,7 +42,7 @@ class RedisBuckets(object):
     async def _set_capacities(
         self,
         new_capacities: list[float],
-        pipeline: Optional[aioredis.client.Pipeline] = None,
+        pipeline: Optional[redis.asyncio.client.Pipeline] = None,
         current_time: Optional[float] = None,
     ):
 
@@ -52,7 +50,7 @@ class RedisBuckets(object):
             pipeline = self._redis.pipeline()
 
         if current_time is None:
-            current_time = asyncio.get_event_loop().time()
+            current_time = time.time()
 
         for new_capacity, bucket in zip(new_capacities, self.buckets):
 
@@ -68,11 +66,11 @@ class RedisBuckets(object):
     async def _has_capacity_async(self, amounts: list[float]):
 
         # Lock all the buckets
-        async with await self._lock(timeout=1):
+        async with await self._lock(timeout=2):
 
             # Create the pipeline and current time
             pipeline = self._redis.pipeline()
-            current_time = asyncio.get_event_loop().time()
+            current_time = time.time()
 
             # Get the new capacities
             new_capacities = await self._get_capacities(
@@ -107,3 +105,9 @@ class RedisBuckets(object):
 
         while not await self._has_capacity_async(amounts):
             await asyncio.sleep(sleep_interval)
+
+    def wait_for_capacity_sync(
+        self, amounts: list[float], sleep_interval: float = 1e-1
+    ):
+        loop = utils.ensure_event_loop()
+        loop.run_until_complete(self.wait_for_capacity(amounts, sleep_interval=sleep_interval))
