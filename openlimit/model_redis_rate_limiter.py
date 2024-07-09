@@ -1,5 +1,5 @@
 from typing import Callable
-from openlimit.model_rate_limiters import ModelRateLimit, ModelRateLimiter
+from openlimit.model_rate_limiter import ModelRateLimit, ModelRateLimiter
 
 
 class RateLimiterWithRedis(ModelRateLimiter):
