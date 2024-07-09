@@ -2,8 +2,7 @@ import asyncio
 from contextlib import AsyncExitStack, ExitStack
 from typing import Optional
 
-import aioredis
-import aioredis.client
+import redis.asyncio as aioredis
 
 from openlimit.buckets.redis_bucket import RedisBucket
 

@@ -4,9 +4,7 @@ import time
 import typing
 
 # Third party
-import aioredis
-import aioredis.client
-import aioredis.lock
+import redis.asyncio as aioredis
 
 ######
 # MAIN

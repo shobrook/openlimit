@@ -2,7 +2,7 @@
 import asyncio
 
 # Third party
-import aioredis
+import redis.asyncio as aioredis
 
 # Local
 import openlimit.utilities as utils
