@@ -51,3 +51,25 @@ class ContextManager(object):
 
     async def __aexit__(self, *exc):
         return False
+    
+class ModelContextManager(object):
+    """
+    Converts model aware rate limiter into context manager.
+    """
+
+    def __init__(self, num_tokens, model, rate_limiter):
+        self.num_tokens = num_tokens
+        self.model = model
+        self.rate_limiter = rate_limiter
+
+    def __enter__(self):
+        self.rate_limiter.wait_for_capacity_sync(self.num_tokens, self.model)
+
+    def __exit__(self, *exc):
+        return False
+
+    async def __aenter__(self):
+        await self.rate_limiter.wait_for_capacity(self.num_tokens, self.model)
+
+    async def __aexit__(self, *exc):
+        return False
