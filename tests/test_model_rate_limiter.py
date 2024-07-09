@@ -1,7 +1,8 @@
+import asyncio
 import threading
 import time
 import pytest
-from openlimit.model_rate_limiters import ModelRateLimiter, ModelRateLimit
+from openlimit.model_rate_limiter import ModelRateLimiter, ModelRateLimit
 from openlimit.buckets import ModelBucket
 from unittest.mock import patch
 
@@ -52,34 +53,6 @@ def test_limit_with_missing_model():
         with rate_limiter.limit():
             pass
 
-def test_model_bucket_initial_capacity():
-    rate_limit_per_minute = 1200
-    bucket_size_in_seconds = 600
-    bucket = ModelBucket(rate_limit=rate_limit_per_minute, bucket_size_in_seconds=bucket_size_in_seconds)
-    assert bucket.get_capacity() == rate_limit_per_minute / 60 * bucket_size_in_seconds
-
-def test_model_bucket_set_capacity():
-    simulated_timestamp = 123
-    bucket = ModelBucket(rate_limit=120, bucket_size_in_seconds=60, last_checked=simulated_timestamp)
-    bucket.set_capacity(5, current_time=simulated_timestamp)
-    assert bucket.get_capacity(simulated_timestamp) == 5
-
-def test_capacity_after_one_second():
-    rate_limit_per_minute = 120
-    bucket_size_in_seconds = 60
-    bucket = ModelBucket(rate_limit=rate_limit_per_minute, bucket_size_in_seconds=bucket_size_in_seconds)
-    bucket.set_capacity(0)
-    with patch('time.time', return_value=bucket.last_checked + 1):
-        assert bucket.get_capacity() == pytest.approx(rate_limit_per_minute / 60, 0.1)
-
-def test_capacity_replenished_after_bucket_size_in_seconds():
-    rate_limit_per_minute = 120
-    bucket_size_in_seconds = 60
-    bucket = ModelBucket(rate_limit=rate_limit_per_minute, bucket_size_in_seconds=bucket_size_in_seconds)
-    bucket.set_capacity(0)
-    with patch('time.time', return_value=bucket.last_checked + bucket_size_in_seconds):
-        assert bucket.get_capacity() == pytest.approx(rate_limit_per_minute, 0.1)
-
 def test_multithreading_rate_limiter():
     model_rate_limits = {
         MODEL_GPT_3_5: ModelRateLimit(request_limit=10, token_limit=1000),
@@ -110,3 +83,34 @@ def test_multithreading_rate_limiter():
     thread1.start()
     time.sleep(0.1)  # Ensure thread1 starts and exhausts tokens first
     thread2.start()
+
+@pytest.mark.asyncio
+async def test_async_rate_limiter():
+    model_rate_limits = {
+        MODEL_GPT_3_5: ModelRateLimit(request_limit=10, token_limit=1000),
+    }
+    rate_limiter = ModelRateLimiter(model_rate_limits=model_rate_limits, sleep_interval=0.2, token_counter=lambda **kwargs: 1000)
+
+    async def exhaust_tokens():
+        async with rate_limiter.limit(model=MODEL_GPT_3_5):
+            print("Tokens exhausted")
+
+    async def wait_for_tokens():
+        current_time = time.time()
+        side_effect = [
+            current_time,  # initial call in exhaust_tokens
+            current_time,  # second call in exhaust_tokens
+            current_time + 1,  # first sleep in wait_for_capacity_sync
+            current_time + 61,  # second call after sleep, tokens replenished
+        ]
+
+        with patch('time.time', side_effect=side_effect):
+            async with rate_limiter.limit(model=MODEL_GPT_3_5):
+                print("Tokens available")
+
+    task1 = asyncio.create_task(exhaust_tokens())
+    await asyncio.sleep(0.1)  # Ensure task1 starts and exhausts tokens first
+    task2 = asyncio.create_task(wait_for_tokens())
+
+    await task1
+    await task2

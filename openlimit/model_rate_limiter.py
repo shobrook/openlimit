@@ -55,7 +55,7 @@ class ModelRateLimiter:
     async def wait_for_capacity(self, num_tokens, model):
         request_bucket, token_bucket = self.buckets[model]
         start_time = time.time()
-        timeout = 10  # Timeout after 10 seconds
+        timeout = 120  # Timeout after 2 minutes
         while True:
             current_time = time.time()
             if current_time - start_time > timeout:
