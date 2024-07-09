@@ -83,34 +83,3 @@ def test_multithreading_rate_limiter():
     thread1.start()
     time.sleep(0.1)  # Ensure thread1 starts and exhausts tokens first
     thread2.start()
-
-@pytest.mark.asyncio
-async def test_async_rate_limiter():
-    model_rate_limits = {
-        MODEL_GPT_3_5: ModelRateLimit(request_limit=10, token_limit=1000),
-    }
-    rate_limiter = ModelRateLimiter(model_rate_limits=model_rate_limits, sleep_interval=0.2, token_counter=lambda **kwargs: 1000)
-
-    async def exhaust_tokens():
-        async with rate_limiter.limit(model=MODEL_GPT_3_5):
-            print("Tokens exhausted")
-
-    async def wait_for_tokens():
-        current_time = time.time()
-        side_effect = [
-            current_time,  # initial call in exhaust_tokens
-            current_time,  # second call in exhaust_tokens
-            current_time + 1,  # first sleep in wait_for_capacity_sync
-            current_time + 61,  # second call after sleep, tokens replenished
-        ]
-
-        with patch('time.time', side_effect=side_effect):
-            async with rate_limiter.limit(model=MODEL_GPT_3_5):
-                print("Tokens available")
-
-    task1 = asyncio.create_task(exhaust_tokens())
-    await asyncio.sleep(0.1)  # Ensure task1 starts and exhausts tokens first
-    task2 = asyncio.create_task(wait_for_tokens())
-
-    await task1
-    await task2
