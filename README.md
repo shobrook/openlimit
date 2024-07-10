@@ -92,6 +92,24 @@ rate_limiter = ChatRateLimiterWithRedis(
 # Use `rate_limiter` like you would normally ...
 ```
 
+### Distributed model aware requests
+```python
+
+from openlimit.redis_model_rate_limiter import RadisModelRateLimiterForChat, ModelRateLimit
+
+rate_limiter = RadisModelRateLimiterForChat(
+    redis_url="redis://localhost:6379/0",
+    prefix="my_app",
+    model_rate_limits={
+        "gpt-3.5-turbo": ModelRateLimit(request_limit=3500, token_limit=90000),
+        "gpt-4": ModelRateLimit(request_limit=200, token_limit=40000),
+    },
+    timeout_in_seconds=120
+)
+
+# Use `rate_limiter` like you would normally ...
+```
+
 All `RateLimiter` objects have `RateLimiterWithRedis` counterparts.
 
 ### Token counting
