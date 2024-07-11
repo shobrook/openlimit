@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openlimit"
+version = "0.4.0"
+description = "Distributed rate limiter for calling openai api or any compatible LLM api"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Chowdhury Yeameen", email = "yeameen@blackbird.ai" },
+    { name = "shobrook", email = "shobrookj@gmail.com" },
+]
+dependencies = [
+    "redis ~= 5.0",
+    "tiktoken ~= 0.7.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+]
+
+[project.urls]
+Homepage = "https://github.com/blackbirdai-team/openlimit"
+Repository = "https://github.com/blackbirdai-team/openlimit.git"
+
+[tool.hatch.build.targets.wheel]
+packages=["openlimit", "openlimit.utilities", "openlimit.buckets"]
