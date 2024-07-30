@@ -1,0 +1,65 @@
+name: Python Test and Coverage
+
+on:
+  workflow_dispatch: {}
+
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+      fail-fast: false
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e '.[test]'
+
+    - name: Run tests with coverage
+      run: pytest --cov=pipeline --junitxml="tests/report.xml" --cov-report=xml:tests/coverage.xml
+
+    - name: Test Summary
+      uses: test-summary/action@v2
+      with:
+        paths: "tests/report.xml"
+      if: always()
+
+    - name: Comment Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |
+          tests/report.xml
+
+    - name: Coverage Summary
+      uses: irongut/CodeCoverageSummary@v1.3.0
+      with:
+        filename: tests/coverage.xml
+        badge: true
+        indicators: false
+        format: 'markdown'
+        output: 'both'
+
+    - name: Add Coverage PR Comment
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: github.event_name == 'pull_request'
+      with:
+        hide_and_recreate: true
+        hide_classify: "OUTDATED"
+        path: code-coverage-results.md
