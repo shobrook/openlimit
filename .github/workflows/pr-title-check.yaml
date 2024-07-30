@@ -1,0 +1,12 @@
+name: Validate PR Title for Jira Ticket Reference
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  workflow_dispatch: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: blackbirdai-team/action-pr-title@v1

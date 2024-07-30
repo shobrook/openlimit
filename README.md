@@ -101,8 +101,10 @@ rate_limiter = RadisModelRateLimiterForChat(
     redis_url="redis://localhost:6379/0",
     prefix="my_app",
     model_rate_limits={
-        "gpt-3.5-turbo": ModelRateLimit(request_limit=3500, token_limit=90000),
-        "gpt-4": ModelRateLimit(request_limit=200, token_limit=40000),
+        "gpt-3.5-turbo": ModelRateLimit(request_limit=10_000, token_limit=10_000_000),
+        "gpt-4": ModelRateLimit(request_limit=10_000, token_limit=300_000),
+        "gpt-4o": ModelRateLimit(request_limit=10_000, token_limit=2_000_000),
+        "gpt-4o-mini": ModelRateLimit(request_limit=10_000, token_limit=1_000_000_000),
     },
     timeout_in_seconds=120
 )
